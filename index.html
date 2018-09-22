@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Simple-Markdown</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">  
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 16px;
+            height: 100%;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .selected {
+            font-weight: bold;
+            color: green; 
+            background: rgb(225, 245, 225)       
+        }
+        .panel {
+            border-left-style: dotted; 
+            border-width: 1px; 
+            height: 100vh; 
+            padding-left: 1rem;
+            position: relative;
+        }
+        .status-bar {
+            position: absolute;
+            top: 85vh;     
+        }
+    </style>
+</head>
+<body>     
+    <div id="notebook">
+        <v-container fluid grid-list-sm>
+            <v-layout row wrap>
+                <v-flex d-flex xs12 sm4 md2>
+                    <div>                        
+                        <v-tooltip bottom>
+                            <v-btn 
+                                slot="activator" 
+                                dark block color="green" 
+                                @click="addNote">
+                                <v-icon dark>add</v-icon>Add Note
+                            </v-btn>                             
+                            <span v-text="notes.length + ' note(s) added'"></span>
+                        </v-tooltip> 
+                        <v-list two-line subheader>        
+                            <v-list-tile v-for="(note, i) of sortedNotes" :key="i" 
+                                @click="selectNote(note)" :class="{selected: note === selectedNote}">
+                                <v-list-tile-content >
+                                    <v-list-tile-title >{{note.title}}</v-list-tile-title>    
+                                </v-list-tile-content>
+                                <v-list-tile-action v-if="note.favorite">
+                                    <v-btn icon ripple>
+                                        <v-icon color="green lighten-1">star</v-icon>
+                                    </v-btn>
+                                </v-list-tile-action>
+                            </v-list-tile>  
+                        </v-list>                     
+                    </div>                    
+                </v-flex>
+                <template v-if="selectedNote">                
+                    <v-flex d-flex xs12 sm4 md5>
+                        <div class="panel hide-overflow">                            
+                            <v-text-field
+                            v-model="selectedNote.title"                            
+                            :counter="100"
+                            label="Note Title"
+                            required
+                            ></v-text-field>  
+                            <v-btn dark @click="favoriteNote" :color="selectedNote.favorite ? 'green' : 'grey'">
+                                <v-icon dark>{{ selectedNote.favorite ? 'star' : 'star_border' }}</v-icon>
+                            </v-btn>    
+                            <v-dialog v-model="dialog" persistent max-width="290">
+                                <v-btn 
+                                    slot="activator" 
+                                    dark color="teal" 
+                                >
+                                    <v-icon dark>delete</v-icon> Remove
+                                </v-btn>      
+                                <v-card>
+                                    <v-card-title class="headline">Delete {{selectedNote.title}}?</v-card-title>  
+                                    <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="green darken-1" flat @click.native="dialog = false">No</v-btn>
+                                    <v-btn color="green darken-1" flat @click.native="removeNote">Yes</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                            <v-textarea                        
+                                v-model="selectedNote.content"
+                                auto-grow
+                                box
+                                label="Please enter your markdown text"
+                                color="green"                            
+                                rows="2"
+                            ></v-textarea> 
+                            <v-bottom-nav class="pa-3 status-bar">                                
+                                <div class="mr-3">Created {{ selectedNote.created | date }} </div>
+                                <div class="mr-3">Lines {{ linesCount }} </div>
+                                <div class="mr-3">Words {{ wordsCount }} </div>
+                                <div>Characters {{ charactersCount }} </div>                                
+                            </v-bottom-nav>  
+                        </div>                                             
+                    </v-flex>
+                    <v-flex d-flex xs12 sm4 md5>
+                        <div class="panel" v-html="notePreview"></div>    
+                    </v-flex>
+                </template>
+            </v-layout>
+        </v-container>        
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://unpkg.com/moment@2.22.2/moment.js"></script>    
+    <script src="script.js"></script>
+</body>
+</html>
